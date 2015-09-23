@@ -39,7 +39,6 @@ local function parse_args()
             os.exit(1)
         end
     end
-
 end
 
 
@@ -85,18 +84,17 @@ local function get_location(device_path)
            end
 
         else
-
             if verbose then io.stdout:write(".") end
-
         end
 
     until (
         (location.latitude ~= nil) and (location.longitude ~= nil) and
-        (use_alt and (location.altitude ~= nil))
+        (use_alt and (location.altitude ~= nil) or true)
     )
 
-    return location
+    if verbose then msg("\\o/", true) end
 
+    return location
 end
 
 
@@ -131,7 +129,9 @@ local function save_location(location)
     return true
 end
 
+
 parse_args()
+
 if not save_location(get_location(device)) then
     if verbose then msg("sorry, something failed") end
     os.exit(1)
