@@ -3,6 +3,7 @@
 local device = "/dev/ttyACM0"
 local verbose = false
 local use_alt = false
+local print_only = false
 
 local util = require("luci.util")
 local uci = require("luci.model.uci").cursor()
@@ -19,6 +20,7 @@ local function parse_args()
         msg("\nusage: " .. arg[0] .. " [-avh] [device]", true)
         msg("-a\tset altitude, too", true)
         msg("-v\tuse verbose output", true)
+        msg("-p\tonly print the location, skip save")
         msg("-h\tprint this help", true)
         msg("\ndevice is: " .. device .. "\n", true)
     end
@@ -28,6 +30,8 @@ local function parse_args()
             verbose = true
         elseif a == "-a" or a == "--altitude" then
             use_alt = true
+        elseif a == "-p" or a == "--print" then
+            print_only = true
         elseif a == "-h"  or a == "--help" then
             usage()
             os.exit(0)
@@ -132,10 +136,16 @@ end
 
 parse_args()
 
-if not save_location(get_location(device)) then
-    if verbose then msg("sorry, something failed") end
-    os.exit(1)
-end
+local location = get_location(device)
 
-if verbose then msg("all went well", true) end
-os.exit(0)
+if print_only then
+    msg(location, true)
+else
+    if not save_location(location) then
+        if verbose then msg("sorry, something failed") end
+        os.exit(1)
+    end
+
+    if verbose then msg("all went well", true) end
+    os.exit(0)
+end
